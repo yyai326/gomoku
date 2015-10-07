@@ -2,12 +2,12 @@
 #include <stdbool.h>
 
 #define BDSZ 15 //boardsize
-#define B 1 //black 
+#define B 1 //black
 #define W 2 //white
 
 /*
    struct Point
-   borad point with postion and black/white
+   board point with position and black/white
 */
 typedef struct stPoint
 {
@@ -74,8 +74,8 @@ void play()
 {
     int x,y;
     int who=B;
-    printf("Black(1) turn:");
-    while(scanf("%d %d",&x,&y)!=0)
+    printf("Black(1) turn(x,y):");
+    while(scanf("%d,%d",&x,&y)!=0)
     {
         pt p1;
         setpt(&p1,x,y,who);
@@ -86,9 +86,9 @@ void play()
         printsat(st);
         who=who==W?B:W;
         if(who==W)
-            printf("White(2) turn:");
+            printf("White(2) turn(x,y):");
         else
-            printf("Black(1) turn:");
+            printf("Black(1) turn(x,y):");
     }
 }
 
@@ -108,8 +108,11 @@ void setpt(pt * p,int x,int y,int who)
 void printbd(short board[][BDSZ])
 {
     int i=0,j=0;
+    printf("YY:0|1|2|3|4|5|6|7|8|9|A|B|C|D|E|\n");
+    printf("---------------------------------\n");
     for(i=0;i<BDSZ;i++)
     {
+        printf("%2d:",i);
         for(j=0;j<BDSZ;j++)
             printf("%hd|",board[i][j]);
         printf("\n");
@@ -190,55 +193,88 @@ sat get_sta(short bd[][BDSZ],int who)
 
 void printsat(sat s)
 {
-    printf("two:%d\n",s.a_two);
-    printf("three:%d\n",s.a_three);
-    printf("four:%d\n",s.a_four);
-    printf("five:%d\n",s.a_five);
+    printf("a_two:%d\n",s.a_two);
+    printf("a_three:%d\n",s.a_three);
+    printf("a_four:%d\n",s.a_four);
+    printf("a_five:%d\n",s.a_five);
+    printf("h_two:%d\n",s.h_two);
+    printf("h_three:%d\n",s.h_three);
+    printf("h_four:%d\n",s.h_four);
+    printf("h_five:%d\n",s.h_five);
 }
 
 
 
-void cnt_line(short const *line, int size, int who,sat *st) 
+void cnt_line(short const *line, int size, int who,sat *st)
 {
     int i;
     int cnt=0;
+    int opp=who==W?B:W;
+    int isHalf=0;
     for (i=0;i<size;i++)
     {
-        //printf("%d,",line[i]);
-        if(line[i]==who && cnt==0)   
-            cnt=1;
-        else if(line[i]==who && cnt>0)
-            cnt++;
-        else if(line[i]!=who && cnt==0)
-            cnt=0;
-        else //line[i]!=who && cnt>0
-        {
-            switch (cnt)
-            {
-                case 2:
-                    st->a_two++;
-                    break;
-                case 3:
-                    st->a_three++;
-                    break;
-                case 4:
-                    st->a_four++;
-                    break;
-                case 5:
-                    st->a_five++;
-                    break;
-                default:
-                    if(cnt>5)
+        if(i==size-1 || (line[i]!=who && cnt>0)){
+            if(i==size-1 || line[i+1] ==opp )
+                isHalf=1;
+            if(isHalf==0){
+                switch (cnt)
+                {
+                    case 2:
+                        st->a_two++;
+                        break;
+                    case 3:
+                        st->a_three++;
+                        break;
+                    case 4:
+                        st->a_four++;
+                        break;
+                    case 5:
                         st->a_five++;
-                    break;
+                        break;
+                    default:
+                        if(cnt>5)
+                            st->a_five++;
+                        break;
+                }
+            }
+            else{
+                switch (cnt)
+                {
+                    case 2:
+                        st->h_two++;
+                        break;
+                    case 3:
+                        st->h_three++;
+                        break;
+                    case 4:
+                        st->h_four++;
+                        break;
+                    case 5:
+                        st->a_five++;
+                        break;
+                    default:
+                        if(cnt>5)
+                            st->a_five++;
+                        break;
+                }
             }
             cnt=0;
+            isHalf=0;
         }
+        //printf("%d,",line[i]);
+        else if(line[i]==who && cnt==0){
+            cnt=1;
+            if(i==0 || line[i-1] == opp)
+                isHalf=1;
+        }
+        else if(line[i]==who && cnt>0)
+            cnt++;
+        else if(line[i]!=who && cnt==0){
+            cnt=0;
+            isHalf=0;
+        }
+
     }
     //printf("\n");
 }
 
-
-
-
-   
